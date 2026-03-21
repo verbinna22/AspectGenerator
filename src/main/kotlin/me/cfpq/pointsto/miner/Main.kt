@@ -1,6 +1,7 @@
 package me.cfpq.pointsto.miner
 
 import org.jacodb.api.jvm.JcClasspath
+import org.jacodb.api.jvm.JcMethod
 import org.jacodb.impl.features.classpaths.UnknownClassMethodsAndFields
 import org.jacodb.impl.features.classpaths.UnknownClasses
 import org.jacodb.impl.jacodb
@@ -24,7 +25,7 @@ suspend fun main(args: Array<String>) {
                     emptySequence()
                 }.asStream()
             }
-            .map { callMethod -> "${callMethod.enclosingClass.name}.${callMethod.name}" }
+            .map { callMethod -> callMethod.builderNameStandart }
             .distinct()
             .filter { str -> str.startsWith("java.lang.") || str.startsWith("java.util.") }
             .toList()
@@ -35,6 +36,9 @@ suspend fun main(args: Array<String>) {
         writer.write(allMethods)
     }
 }
+
+val JcMethod.builderNameStandart
+    get() = "${this.enclosingClass.name}#${this.name}(${this.parameters.joinToString(",") { it.type.typeName }})"
 
 suspend fun useJacoDb(block: (JcClasspath) -> Unit) = jacodb { keepLocalVariableNames() }.use { db ->
     db.classpath(getRuntimeClasspath(), listOf(UnknownClassMethodsAndFields, UnknownClasses,
