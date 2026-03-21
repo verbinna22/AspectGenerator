@@ -13,7 +13,7 @@ val mainDirectory = "/mnt/data/MyOwnFolder/learning/p_algo/logging-log4j2"
 
 suspend fun main(args: Array<String>) {
 //    showFunId = false to old version
-    var joinedPointCut: String = ""
+//    var joinedPointCut: String = ""
     var allMethods = ""
     useJacoDb { cp ->
         val methods = cp.safeAllClasses()
@@ -24,30 +24,14 @@ suspend fun main(args: Array<String>) {
                     emptySequence()
                 }.asStream()
             }
-            .filter { method -> method.annotations.any { ann -> ann.name.contains("Test") } }
-            //.map {  println("MN ${it.name} ${it.annotations}"); it }
-            .flatMap { method -> method.instList.filterIsInstance<JcCallInst>().stream() }
-            .map { instr -> instr.callExpr.method.method }
-            .filter { callMethod -> callMethod.name != "<init>" && callMethod.name != "<clinit>" }
             .map { callMethod -> "${callMethod.enclosingClass.name}.${callMethod.name}" }
             .distinct()
-            .filter { str -> str.startsWith("org.apache.logging.log4j") }
+            .filter { str -> str.startsWith("java.lang.") || str.startsWith("java.util.") }
             .toList()
         allMethods = methods
             .joinToString("\n")
-        joinedPointCut = methods
-            .map { str -> "\"execution(public * ${str}(..))\"" }
-            .toList()
-            .joinToString(" + \" || \" +\n")
-            .also { str -> println(str) }
     }
-    val aspect = File("./InitialAspect.java").reader().use { file -> file.readText() }
-    val result = aspect.split("###").joinToString(joinedPointCut)
-    println(result)
-    File("./AnalyzingAspect.java").writer().use { writer ->
-        writer.write(result)
-    }
-    File("./methods_.txt").writer().use { writer ->
+    File("./stdlib_methods.txt").writer().use { writer ->
         writer.write(allMethods)
     }
 }
@@ -58,24 +42,7 @@ suspend fun useJacoDb(block: (JcClasspath) -> Unit) = jacodb { keepLocalVariable
 }
 
 private fun getRuntimeClasspath(): List<File> {
-    val subProjects = File(mainDirectory).listFiles { file -> file.isDirectory }?.toList() ?: emptyList()
-    var mainSubProjects = subProjects.filter { folder ->
-        val targetClasses = File(folder, "target/classes")
-        targetClasses.exists() && targetClasses.isDirectory
-    }
-    mainSubProjects = mainSubProjects.map { folder ->
-        File(folder, "target/classes")
-    }
-    var testSubProjects = subProjects.filter { folder ->
-        val targetClasses = File(folder, "target/test-classes")
-        targetClasses.exists() && targetClasses.isDirectory
-    }
-    testSubProjects = testSubProjects.map { folder ->
-        File(folder, "target/test-classes")
-    }
-    val paths = mainSubProjects.joinToString(":") { it.absolutePath } + ":" + testSubProjects.joinToString(":") { it.absolutePath }
-    val classpath = "${paths}"
-//    println(classpath)
+    val classpath = System.getProperty("java.class.path")
     val classpathFiles = classpath.split(File.pathSeparator)
         .filter { it.isNotEmpty() }
         .map { File(it) }
