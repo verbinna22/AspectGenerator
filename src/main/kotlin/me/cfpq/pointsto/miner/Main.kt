@@ -14,7 +14,7 @@ val mainDirectory = "/mnt/data/MyOwnFolder/learning/p_algo/logging-log4j2"
 
 suspend fun main(args: Array<String>) {
 //    showFunId = false to old version
-//    var joinedPointCut: String = ""
+    var joinedPointCut: String = ""
     var allMethods = ""
     useJacoDb { cp ->
         val methods = cp.safeAllClasses()
@@ -34,6 +34,15 @@ suspend fun main(args: Array<String>) {
             .joinToString("\n")
     }
     File("./stdlib_methods.txt").writer().use { writer ->
+        writer.write(allMethods)
+    }
+    val aspect = File("./InitialAspect.java").reader().use { file -> file.readText() }
+    val result = aspect.split("###").joinToString(joinedPointCut)
+    println(result)
+    File("./AnalyzingAspect.java").writer().use { writer ->
+        writer.write(result)
+    }
+    File("./methods_.txt").writer().use { writer ->
         writer.write(allMethods)
     }
 }

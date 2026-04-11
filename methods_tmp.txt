@@ -1,1 +1,10 @@
-org.apache.logging.log4j.core.pattern.PatternFormatter.format
+java.util.ArrayList$ArrayListSpliterator#tryAdvance(java.util.function.Consumer)
+java.util.ArrayList$ArrayListSpliterator#forEachRemaining(java.util.function.Consumer)
+java.util.ArrayList$Itr#forEachRemaining(java.util.function.Consumer)
+java.util.ArrayList$SubList$1#forEachRemaining(java.util.function.Consumer)
+java.util.ArrayList$SubList$2#tryAdvance(java.util.function.Consumer)
+java.util.ArrayList$SubList$2#forEachRemaining(java.util.function.Consumer)
+java.util.ArrayList#get(int)
+java.util.ArrayList#set(int,java.lang.Object)
+java.util.ArrayList#remove(int)
+java.util.ArrayList#forEach(java.util.function.Consumer)
