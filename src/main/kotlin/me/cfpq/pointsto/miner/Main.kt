@@ -32,6 +32,11 @@ suspend fun main(args: Array<String>) {
             .toList()
         allMethods = methods
             .joinToString("\n")
+        joinedPointCut = methods
+            .map { str -> "\"execution(public * ${str}(..))\"" }
+            .toList()
+            .joinToString(" + \" || \" +\n")
+            .also { str -> println(str) }
     }
     File("./stdlib_methods.txt").writer().use { writer ->
         writer.write(allMethods)
