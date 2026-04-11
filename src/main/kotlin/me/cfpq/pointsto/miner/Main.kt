@@ -25,9 +25,10 @@ suspend fun main(args: Array<String>) {
                     emptySequence()
                 }.asStream()
             }
+            .filter { callMethod -> callMethod.isPublic }
             .map { callMethod -> callMethod.builderNameStandart }
             .distinct()
-            .filter { str -> str.startsWith("java.lang.") || str.startsWith("java.util.") }
+            .filter { str -> str.startsWith("java.util.ArrayList") } // str.startsWith("java.lang.") || str.startsWith("java.util.")
             .toList()
         allMethods = methods
             .joinToString("\n")
